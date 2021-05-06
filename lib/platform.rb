@@ -25,7 +25,8 @@ class Platform
   end
 
   def padding
-    5.times do puts ''
+    4.times do
+      puts ''
     end
   end
 
