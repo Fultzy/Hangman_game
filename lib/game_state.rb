@@ -1,19 +1,52 @@
 # frozen_string_literal: true
 
 ####################
-require 'pry'
-
 # Game_state class
 class Game_state
+  attr_accessor :incorrect_guesses, :word_array, :letters_tried, :counter,
+                :secret_word, :feedback_val
+
   def initialize
     @counter = 0
-    @correct_guess = 0
+    @feedback_val = 0
     @incorrect_guesses = 5
     @letters_tried = []
     intake_word_list
     @secret_word = 'CHUNGUS'
     create_word_array
-    @word_length = @secret_word.length
+  end
+
+  ###################
+  ## SaveGame
+
+  def state_hash
+    state_hash = {
+      counter: @counter,
+      feedback_val: @feedback_val,
+      incorrect_guesses: @incorrect_guesses,
+      letters_tried: @letters_tried,
+      secret_word: @secret_word,
+      word_array: @word_array
+    }
+  end
+
+  def load_state_hash
+    hash = File.open('./saved_game/saved_game.json', 'r')
+    @counter = hash['counter']
+    @feedback_val = hash['feedback_val']
+    @incorrect_guesses = hash['incorrect_guesses']
+    @letters_tried = hash['letters_tried']
+    @secret_word = hash['secret_word']
+    @word_array = hash['word_array']
+  end
+
+  def save_game
+    Dir.mkdir('saved_game') unless Dir.exist?('saved_game')
+    File.new('./saved_game/saved_game.json', 'w') unless File.exist?('./saved_game/saved_game.json')
+
+    File.open('./saved_game/saved_game.json', 'w') do |file|
+      file.puts state_hash.to_json
+    end
   end
 
   ####################
@@ -22,13 +55,17 @@ class Game_state
     @incorrect_guesses
   end
 
+  def letters_tried
+    @letters_tried
+  end
+
   def won?
     # @word_array[1].all?([letter, 1])
     # no win con atm
   end
 
   def over?
-    @incorrect_guesses.zero? ? true : false
+    @incorrect_guesses.to_i.zero? ? true : false
   end
 
   def hidden_word
@@ -48,17 +85,25 @@ class Game_state
   ####################
   ## Player input
   def input_guess
-    puts " ~ #{@incorrect_guesses} guesses left ~ "
-    print ' $~ '
-    check_guess(gets.chomp.upcase)
+    puts "          ~ #{@incorrect_guesses} guesses left ~ "
+    print ' letter:  '
+    input = gets.chomp.upcase
+    if input == 'SAVE'
+      save_game
+      puts "  Game Saved"
+      exit
+    else
+      check_guess(input)
     @counter += 1
+    end
   end
 
   def message
-    if @counter.zero?
+    sleep(0.5)
+    if @counter.to_i.zero?
       puts ".. You're next. You get 5 chances, test your luck.. Else you die.."
     else
-      case @correct_guess
+      case @feedback_val
       when 1
         puts ' Correct!'
       when 2
@@ -67,6 +112,7 @@ class Game_state
         puts " You've already tried that letter! Idiot! "
       end
     end
+    sleep(1)
   end
 
   ##########################
@@ -95,11 +141,11 @@ class Game_state
     # if you've already tried this letter
     p @letters_tried
     if @letters_tried.include?(letter)
-      @correct_guess = 3
+      @feedback_val = 3
 
       # if letter is correct
     elsif @secret_word.include?(letter)
-      @correct_guess = 1
+      @feedback_val = 1
       @letters_tried.push(letter)
       @word_array.each do |letter_array|
         letter_array[0] == letter ? letter_array[1] = 1 : 0
@@ -107,7 +153,7 @@ class Game_state
 
       # if letter is not found in @secret_word
     elsif @word_array.none?(letter)
-      @correct_guess = 2
+      @feedback_val = 2
       @incorrect_guesses -= 1
       @letters_tried.push(letter)
     end

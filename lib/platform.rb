@@ -6,8 +6,9 @@
 require_relative 'game_state'
 
 class Platform
-  def update_platform(guesses_left)
+  def update_platform(guesses_left,letters_tried)
     padding
+    puts " Letters tried: #{letters_tried}" unless letters_tried.empty?
     case guesses_left
     when 5
       zero_wrong
