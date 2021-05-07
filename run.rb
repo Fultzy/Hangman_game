@@ -23,7 +23,8 @@ end
 def try_again?
   puts ' ...try again?'
   print '(y/n): '
-  @play = gets.chomp.upcase == 'Y'
+  input = gets.chomp.upcase
+  @play = input == 'Y'
 end
 
 @play = true
@@ -64,6 +65,7 @@ until @play == false
   if @game.guess_count.to_i.zero?
     platform.padding
     platform.lost_game
+    @game.show_word
     try_again?
 
   elsif @game.won?
