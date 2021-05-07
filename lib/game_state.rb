@@ -31,7 +31,7 @@ class Game_state
   end
 
   def load_state_hash
-    hash = File.open('./saved_game/saved_game.json', 'r')
+    hash = JSON.parse(File.read('./saved_game/saved_game.json', 'r'))
     @counter = hash['counter']
     @feedback_val = hash['feedback_val']
     @incorrect_guesses = hash['incorrect_guesses']

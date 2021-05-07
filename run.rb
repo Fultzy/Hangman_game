@@ -28,6 +28,8 @@ end
 
 @play = true
 until @play == false
+  platform = Platform.new
+  platform.zero_wrong
 
   if load_saved_game?
     @game = Game_state.new
@@ -35,8 +37,6 @@ until @play == false
     puts ' ~~ Game loaded ~~'
   else
     @game = Game_state.new
-    platform = Platform.new
-    platform.zero_wrong
     @game.message
     puts '   .. You can enter "save" at any point to save the game..'
     sleep(2)
