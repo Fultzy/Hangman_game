@@ -125,19 +125,18 @@ class Game_state
     word_list = []
     src = File.open('./lib/words.txt', 'r')
     src.flat_map { |line| word_list << line.upcase.split(/[^[:alpha:]]/).reject(&:empty?) }
-    p word_list.delete_if { |word| word.length < 4 && word.length > 12 }
+    word_list.delete_if { |word| word.length < 4 && word.length > 12 }
     word = word_list[rand(1..word_list.size)].to_s.gsub(/[^A-Za-z0-9 ]/, '')
   end
 
   def create_word_array
     @word_array = []
     @secret_word.to_s.each_char { |char| @word_array.push([char.to_s, 0]) }
-    p @word_array
+    @word_array
   end
 
   def check_guess(letter)
     # if you've already tried this letter
-    p @letters_tried
     if @letters_tried.include?(letter)
       @feedback_val = :already_tried
 
